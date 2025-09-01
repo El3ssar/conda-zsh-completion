@@ -212,6 +212,8 @@ __conda_envs(){
     else
         conda_path="${${CONDA_EXE}%bin/conda}/envs"
     fi
+    
+    ls_opts=("-1" "--color=never" "--icons=never")
 
     # global envs (if exists) and base env.
     globalenvs=($([[ -d "${conda_path}" ]] && ls $ls_opts ${conda_path}))
@@ -256,7 +258,7 @@ __conda_package_available(){
     local -a available_packages
     if _cache_invalid conda_available_packages || ! _retrieve_cache conda_available_packages ; then
         available_packages=($(conda search --use-index-cache --json |
-        python -c "
+        python3 -c "
 import json, sys
 parsed = json.load(sys.stdin)
 try:
@@ -280,7 +282,7 @@ __describe_conda_package_available(){
 __conda_existing_config_keys(){
     local -a config_keys
     config_keys=($(conda config --json --get |
-        python -c "
+        python3 -c "
 import json, sys
 keys = json.load(sys.stdin)['get'].keys()
 try:
@@ -322,7 +324,7 @@ __conda_existing_config_values(){
     local -a config_values search_term
     search_term="$1"
     config_values=($(conda config --json --get "$search_term" 2> /dev/null |
-        python -c "
+        python3 -c "
 import json, sys
 try:
     values = json.load(sys.stdin)['get']['$search_term']
@@ -406,7 +408,7 @@ __conda_describe_package_specs(){
 __conda_describe_package_version(){
     local -a current_package versions
     current_package="$1"
-    versions=($( conda search --json --use-index-cache $current_package | python -c "
+    versions=($( conda search --json --use-index-cache $current_package | python3 -c "
 import json,sys
 try:
     versions = set((e['version'] for e in json.load(sys.stdin)['$current_package']))
@@ -778,3 +780,4 @@ case $state in
     esac
     ;;
 esac
+
